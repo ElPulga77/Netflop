@@ -164,11 +164,26 @@ function Header({ route, setRoute, query, setQuery, onSubmit }) {
 function Home({ openMovie }) {
   const { data, loading } = useApi('/films/phim-moi-cap-nhat?page=1', {});
   const latest = normalizeList(data);
-  const hero = latest[0];
+  const [heroIndex, setHeroIndex] = useState(0);
+  const hero = latest[heroIndex] || latest[0];
+
+  useEffect(() => {
+    if (heroIndex >= latest.length) {
+      setHeroIndex(0);
+    }
+  }, [heroIndex, latest.length]);
+
+  const moveHero = (direction) => {
+    if (!latest.length) return;
+    setHeroIndex((current) => (current + direction + latest.length) % latest.length);
+  };
 
   return (
     <main>
       <section className="hero" style={{ backgroundImage: `linear-gradient(90deg, #050505 0%, rgba(5,5,5,.78) 38%, rgba(5,5,5,.12) 100%), url(${imageOf(hero)})` }}>
+        <button className="heroNav heroPrev" onClick={() => moveHero(-1)} disabled={latest.length < 2} aria-label="Phim nổi bật trước">
+          <ChevronLeft size={42} />
+        </button>
         <div className="heroContent">
           <div className="kicker">
             <Star size={16} fill="currentColor" />
@@ -187,6 +202,9 @@ function Home({ openMovie }) {
             </button>
           </div>
         </div>
+        <button className="heroNav heroNext" onClick={() => moveHero(1)} disabled={latest.length < 2} aria-label="Phim nổi bật tiếp theo">
+          <ChevronRight size={42} />
+        </button>
       </section>
       <section className="rows">
         {loading ? <LoadingBlock /> : null}

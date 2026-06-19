@@ -104,12 +104,52 @@ nav button:hover,
 }
 
 .hero {
+  position: relative;
   min-height: 82vh;
   display: flex;
   align-items: center;
   padding: 112px 4vw 72px;
   background-position: center right;
   background-size: cover;
+}
+
+.heroNav {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(44px, 4.6vw, 72px);
+  height: clamp(64px, 8vw, 112px);
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  background: rgba(0, 0, 0, .34);
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity .18s ease, background .18s ease;
+}
+
+.hero:hover .heroNav:not(:disabled),
+.heroNav:focus-visible {
+  opacity: 1;
+}
+
+.heroNav:hover {
+  background: rgba(0, 0, 0, .68);
+}
+
+.heroNav:disabled {
+  pointer-events: none;
+}
+
+.heroPrev {
+  left: 0;
+}
+
+.heroNext {
+  right: 0;
 }
 
 .heroContent {
@@ -505,6 +545,12 @@ button:disabled {
   .hero {
     min-height: 76vh;
     padding: 148px 16px 70px;
+  }
+
+  .heroNav {
+    width: 42px;
+    height: 72px;
+    opacity: 1;
   }
 
   .movieRow {
