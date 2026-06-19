@@ -268,13 +268,13 @@ button:disabled {
 
 .rows {
   margin-top: 0;
-  padding: 34px 0 56px;
+  padding: 42px 0 72px;
   position: relative;
   z-index: 2;
 }
 
 .movieRow {
-  margin: 0 0 44px;
+  margin: 0 0 64px;
   padding-left: 4vw;
 }
 
@@ -293,11 +293,11 @@ button:disabled {
 .rail {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(150px, 11.6vw);
-  gap: 10px;
+  grid-auto-columns: minmax(190px, 13.8vw);
+  gap: 14px;
   overflow-x: scroll;
   overflow-y: visible;
-  padding: 4px 4vw 18px 0;
+  padding: 4px 4vw 24px 0;
   scroll-behavior: smooth;
   scrollbar-width: none;
 }
@@ -309,7 +309,7 @@ button:disabled {
 .railNav {
   position: absolute;
   top: 4px;
-  bottom: 18px;
+  bottom: 24px;
   z-index: 4;
   display: flex;
   align-items: center;
@@ -621,11 +621,12 @@ button:disabled {
   }
 
   .movieRow {
+    margin-bottom: 52px;
     padding-left: 16px;
   }
 
   .rail {
-    grid-auto-columns: 42vw;
+    grid-auto-columns: 48vw;
     padding-right: 16px;
   }
 
