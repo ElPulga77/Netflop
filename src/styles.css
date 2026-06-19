@@ -17,6 +17,10 @@ body {
   background: #050505;
 }
 
+body.modalOpen {
+  overflow: hidden;
+}
+
 button,
 input {
   font: inherit;
@@ -440,9 +444,15 @@ button:disabled {
   inset: 0;
   z-index: 50;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 28px 4vw;
   background: rgba(0, 0, 0, .78);
   backdrop-filter: blur(12px);
+  scrollbar-width: none;
+}
+
+.modalLayer::-webkit-scrollbar {
+  display: none;
 }
 
 .modal {

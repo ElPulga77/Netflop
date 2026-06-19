@@ -376,6 +376,13 @@ function MovieModal({ slug, onClose }) {
     setEpisode(null);
   }, [slug]);
 
+  useEffect(() => {
+    document.body.classList.add('modalOpen');
+    return () => {
+      document.body.classList.remove('modalOpen');
+    };
+  }, []);
+
   return (
     <div className="modalLayer" role="dialog" aria-modal="true">
       <div className="modal">
