@@ -166,25 +166,39 @@ function Home({ openMovie }) {
   const latest = normalizeList(data);
   const [heroIndex, setHeroIndex] = useState(0);
   const hero = latest[heroIndex] || latest[0];
+  const heroSlides = latest.slice(0, 8);
 
   useEffect(() => {
-    if (heroIndex >= latest.length) {
+    if (heroIndex >= heroSlides.length) {
       setHeroIndex(0);
     }
-  }, [heroIndex, latest.length]);
+  }, [heroIndex, heroSlides.length]);
 
   const moveHero = (direction) => {
-    if (!latest.length) return;
-    setHeroIndex((current) => (current + direction + latest.length) % latest.length);
+    if (!heroSlides.length) return;
+    setHeroIndex((current) => {
+      const nextIndex = current + direction;
+      return Math.min(Math.max(nextIndex, 0), heroSlides.length - 1);
+    });
   };
 
   return (
     <main>
-      <section className="hero" style={{ backgroundImage: `linear-gradient(90deg, #050505 0%, rgba(5,5,5,.78) 38%, rgba(5,5,5,.12) 100%), url(${imageOf(hero)})` }}>
-        <button className="heroNav heroPrev" onClick={() => moveHero(-1)} disabled={latest.length < 2} aria-label="Phim nổi bật trước">
+      <section className="hero">
+        <div className="heroSlider" style={{ transform: `translate3d(${-heroIndex * 100}%, 0, 0)` }}>
+          {(heroSlides.length ? heroSlides : [hero]).map((movie, index) => (
+            <div
+              className="heroSlide"
+              style={{ backgroundImage: `linear-gradient(90deg, #050505 0%, rgba(5,5,5,.78) 38%, rgba(5,5,5,.12) 100%), url(${imageOf(movie)})` }}
+              aria-hidden={index !== heroIndex}
+              key={`hero-${slugOf(movie)}-${index}`}
+            />
+          ))}
+        </div>
+        <button className="heroNav heroPrev" onClick={() => moveHero(-1)} disabled={heroSlides.length < 2} aria-label="Phim nổi bật trước">
           <ChevronLeft size={42} />
         </button>
-        <div className="heroContent">
+        <div className="heroContent" key={slugOf(hero) || heroIndex}>
           <div className="kicker">
             <Star size={16} fill="currentColor" />
             Phim mới cập nhật
@@ -202,7 +216,7 @@ function Home({ openMovie }) {
             </button>
           </div>
         </div>
-        <button className="heroNav heroNext" onClick={() => moveHero(1)} disabled={latest.length < 2} aria-label="Phim nổi bật tiếp theo">
+        <button className="heroNav heroNext" onClick={() => moveHero(1)} disabled={heroSlides.length < 2} aria-label="Phim nổi bật tiếp theo">
           <ChevronRight size={42} />
         </button>
       </section>
