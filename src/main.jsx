@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
   ChevronLeft,
@@ -201,6 +201,39 @@ function Home({ openMovie }) {
 function MovieRow({ title, endpoint, openMovie }) {
   const { data, loading, error } = useApi(endpoint, {});
   const movies = normalizeList(data).slice(0, 18);
+  const railRef = useRef(null);
+  const [canGoPrev, setCanGoPrev] = useState(false);
+  const [canGoNext, setCanGoNext] = useState(false);
+
+  const updateRailState = () => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const maxScroll = rail.scrollWidth - rail.clientWidth;
+    setCanGoPrev(rail.scrollLeft > 4);
+    setCanGoNext(rail.scrollLeft < maxScroll - 4);
+  };
+
+  useEffect(() => {
+    updateRailState();
+    const rail = railRef.current;
+    if (!rail) return undefined;
+
+    rail.addEventListener('scroll', updateRailState, { passive: true });
+    window.addEventListener('resize', updateRailState);
+    return () => {
+      rail.removeEventListener('scroll', updateRailState);
+      window.removeEventListener('resize', updateRailState);
+    };
+  }, [movies.length]);
+
+  const moveRail = (direction) => {
+    const rail = railRef.current;
+    if (!rail) return;
+    rail.scrollBy({
+      left: direction * Math.max(rail.clientWidth * 0.86, 320),
+      behavior: 'smooth',
+    });
+  };
 
   return (
     <section className="movieRow">
@@ -209,10 +242,28 @@ function MovieRow({ title, endpoint, openMovie }) {
       </div>
       {loading ? <LoadingBlock compact /> : null}
       {error ? <p className="error">{error}</p> : null}
-      <div className="rail">
-        {movies.map((movie) => (
-          <MovieCard key={`${title}-${slugOf(movie)}`} movie={movie} openMovie={openMovie} />
-        ))}
+      <div className="railShell">
+        <button
+          className="railNav railPrev"
+          onClick={() => moveRail(-1)}
+          disabled={!canGoPrev}
+          aria-label={`Xem phim trước trong ${title}`}
+        >
+          <ChevronLeft size={34} />
+        </button>
+        <div className="rail" ref={railRef}>
+          {movies.map((movie) => (
+            <MovieCard key={`${title}-${slugOf(movie)}`} movie={movie} openMovie={openMovie} />
+          ))}
+        </div>
+        <button
+          className="railNav railNext"
+          onClick={() => moveRail(1)}
+          disabled={!canGoNext}
+          aria-label={`Xem phim tiếp theo trong ${title}`}
+        >
+          <ChevronRight size={34} />
+        </button>
       </div>
     </section>
   );

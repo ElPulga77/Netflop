@@ -197,14 +197,61 @@ button:disabled {
   font-size: 1.35rem;
 }
 
+.railShell {
+  position: relative;
+}
+
 .rail {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(150px, 11.6vw);
   gap: 10px;
-  overflow-x: auto;
+  overflow-x: scroll;
+  overflow-y: visible;
   padding: 4px 4vw 18px 0;
-  scrollbar-width: thin;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+.railNav {
+  position: absolute;
+  top: 4px;
+  bottom: 18px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(42px, 4.6vw, 68px);
+  border: 0;
+  color: #fff;
+  background: rgba(0, 0, 0, .58);
+  opacity: 0;
+  transition: opacity .18s ease, background .18s ease;
+}
+
+.railShell:hover .railNav:not(:disabled),
+.railNav:focus-visible {
+  opacity: 1;
+}
+
+.railNav:hover {
+  background: rgba(0, 0, 0, .78);
+}
+
+.railNav:disabled {
+  pointer-events: none;
+}
+
+.railPrev {
+  left: 0;
+}
+
+.railNext {
+  right: 0;
 }
 
 .movieCard {
@@ -467,6 +514,11 @@ button:disabled {
   .rail {
     grid-auto-columns: 42vw;
     padding-right: 16px;
+  }
+
+  .railNav {
+    width: 42px;
+    opacity: 1;
   }
 
   .listing {
