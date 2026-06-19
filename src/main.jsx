@@ -107,7 +107,14 @@ function App() {
 
   return (
     <div className="app">
-      <Header route={route} setRoute={setRoute} query={query} setQuery={setQuery} onSubmit={submitSearch} />
+      <Header
+        route={route}
+        setRoute={setRoute}
+        query={query}
+        setQuery={setQuery}
+        onSubmit={submitSearch}
+        openMovie={openMovie}
+      />
       {route.screen === 'home' ? (
         <Home openMovie={openMovie} />
       ) : (
@@ -118,8 +125,11 @@ function App() {
   );
 }
 
-function Header({ route, setRoute, query, setQuery, onSubmit }) {
+function Header({ route, setRoute, query, setQuery, onSubmit, openMovie }) {
   const [solid, setSolid] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [suggestLoading, setSuggestLoading] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 24);
@@ -127,6 +137,49 @@ function Header({ route, setRoute, query, setQuery, onSubmit }) {
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  useEffect(() => {
+    const keyword = query.trim();
+    if (keyword.length < 2) {
+      setSuggestions([]);
+      setSuggestLoading(false);
+      return undefined;
+    }
+
+    let mounted = true;
+    setSuggestLoading(true);
+    const timer = window.setTimeout(() => {
+      fetchJson(`/films/search?keyword=${encodeURIComponent(keyword)}`)
+        .then((payload) => {
+          if (mounted) {
+            setSuggestions(normalizeList(payload).slice(0, 6));
+          }
+        })
+        .catch(() => {
+          if (mounted) {
+            setSuggestions([]);
+          }
+        })
+        .finally(() => {
+          if (mounted) {
+            setSuggestLoading(false);
+          }
+        });
+    }, 350);
+
+    return () => {
+      mounted = false;
+      window.clearTimeout(timer);
+    };
+  }, [query]);
+
+  const showSuggestions = query.trim().length >= 2;
+
+  const selectSuggestion = (movie) => {
+    setFocused(false);
+    setQuery('');
+    openMovie(slugOf(movie));
+  };
 
   return (
     <header className={`topbar ${solid || route.screen !== 'home' ? 'topbarSolid' : ''}`}>
@@ -157,6 +210,21 @@ function Header({ route, setRoute, query, setQuery, onSubmit }) {
           aria-label="Tìm phim"
         />
       </form>
+      {showSuggestions ? (
+        <div className="searchSuggest">
+          {suggestLoading ? <div className="suggestState">Đang tìm...</div> : null}
+          {!suggestLoading && suggestions.length === 0 ? <div className="suggestState">Không có gợi ý phù hợp</div> : null}
+          {suggestions.map((movie) => (
+            <button key={`suggest-${slugOf(movie)}`} className="suggestItem" onMouseDown={() => selectSuggestion(movie)}>
+              <img src={imageOf(movie)} alt={nameOf(movie)} />
+              <span>
+                <strong>{nameOf(movie)}</strong>
+                <small>{movie?.origin_name || movie?.episode_current || movie?.year || 'Đang cập nhật'}</small>
+              </span>
+            </button>
+          ))}
+        </div>
+      ) : null}
     </header>
   );
 }
